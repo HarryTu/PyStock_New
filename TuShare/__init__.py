@@ -1,2 +1,1 @@
-import TuShare.FetchData
-import TuShare.Utility
+import TuShare.TSFetchData
