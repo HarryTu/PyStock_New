@@ -1,14 +1,14 @@
 --股票基本信息
 create table ts_stock_basic_info(
 ts_code varchar(10),
-symbol varchar(7),
-exchange varchar(5),
+symbol varchar(6),
+exchange varchar(7),
 name varchar(30),
 fullname varchar(30),
-market varchar(10)
+market varchar(10),
 area varchar(20),
 industry varchar(30),
-is_hs varchar(1),
+is_hs varchar(5),
 list_date datetime
 );
 alter table ts_stock_basic_info add primary key(ts_code);

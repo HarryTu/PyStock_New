@@ -24,42 +24,69 @@ class DBConnection:
         self.__maxshared = 3000 
         self.__maxconn = 3000 
         
-#         self.logger = LoggerFactory.getLogger("DBConnection")
+        try:
+            self.pool = PooledDB(pymysql,mincached=self.__mincached, maxconnections=self.__maxconn, maxcached=self.__maxcached,
+                                     user=self.__username, passwd=self.__password, host=self.__hostname, port=self.__port, db=self.__db,charset=self.__charset)
+        except Exception as e:
+#             LoggerFactory.error("CreateConnectionPool", "Failed to create connection pool with exception: " + str(e))
+            print("Failed to create connection pool with exception: " + str(e) )
+                    
             
-            
-    def CreateConnectionPool(self):
+    def execute_sql(self,sql):
         
         try:
-            PooledDB.
-            pool = PooledDB.PooledDB(pymysql,mincached=self.__mincached, maxconnections=self.__maxconn, maxcached=self.__maxcached,
-                                     user=self.__username, passwd=self.__password, host=self.__hostname, port=self.__port, db=self.__db,charset=self.__charset)
-
-                               
-            return pool
-         
-        except Exception, e:
+            conn = self.pool.connection()
+            cur = conn.cursor()
+            cur.execute(sql)
+            conn.commit()
+            cur.close()
+            conn.close()
             
-            LoggerFactory.error("CreateConnectionPool", "Failed to create connection pool with exception: " + str(e))
-#             self.logger.error("Failed to create connection pool with exception: " + str(e) )
-              
-            return None
- 
+        except Exception as e:
+            cur.close()
+            conn.close()
+            print("Failed to excute sql statement with exception: " + str(e) )
+            print("SQL is: " + sql)
      
-    def CreateConnection(self):
-              
-        try: 
-            conn = pymysql.connect(host=self.__hostname, user=self.__username, passwd=self.__password, db=self.__db, port=self.__port)
-           
-            return conn
-        
-        except Exception, e: 
+    def query_all_data(self,sql):
+
+        try:
+            conn = self.pool.connection()
+            cur = conn.cursor()
+            cur.execute(sql)
+            results = cur.fetchall()
             
-            LoggerFactory.error("CreateConnection", "Failed to create DB connection with exception error: " + str(e))
-#             self.logger.error( "Failed to create DB connection with exception error: " + str(e) )
+            cur.close()
+            conn.close()
+            
+            return results
+            
+        except Exception as e:
+            cur.close()
+            conn.close()
+            print("Failed to execute query all data with exception: " + str(e) )
             
             return None
-    
-        
+   
+    def query_one_data(self,sql):  
+        try:
+            conn = self.pool.connection()
+            cur = conn.cursor()
+            cur.execute(sql)
+            results = cur.fetchone()
+            
+            cur.close()
+            conn.close()
+            
+            return results
+            
+        except Exception as e:
+            cur.close()
+            conn.close()
+            print("Failed to execute one data with exception: " + str(e) )
+            
+            return None
+   
    
 if __name__=='__main__':
 
@@ -69,7 +96,7 @@ if __name__=='__main__':
     
     mytime = "str_to_date('%s'," % time.strftime('%Y-%m-%d') + "'%Y-%m-%d')"
     
-    sql_rtstock = "select count(*) from rtstocks where mtime >= %s" % mytime
+    sql_rtstock = "select count(*) from ts_stock_basic_info"
     
     if pool is not None: 
          
@@ -81,7 +108,7 @@ if __name__=='__main__':
                  
         results = cur.fetchall()
                  
-        print results 
+        print(results) 
                  
         cur.close()
         conn.close()
